@@ -1,5 +1,50 @@
 # Lotus changelog
 
+# 1.4.0 / 2020-12-19
+
+This is a MANDATORY hotfix release of Lotus that resolves a chain halt at height 336,459 caused by nondeterminism in specs-actors. The fix is to update actors to 2.3.3 in order to incorporate this fix https://github.com/filecoin-project/specs-actors/pull/1334.
+
+# 1.3.0 / 2020-12-16
+
+This is a mandatory release of Lotus that introduces the third post-liftoff upgrade to the Filecoin network. The network upgrade occurs at height 343200, before which time all nodes must have updated to this release (or later). The change that breaks consensus is an implementation of FIP-0009(https://github.com/filecoin-project/FIPs/blob/master/FIPS/fip-0009.md).
+
+## Changes
+
+- Disable gas burning for window post messages (https://github.com/filecoin-project/lotus/pull/5200)
+- fix lock propose (https://github.com/filecoin-project/lotus/pull/5197)
+
+# 1.2.3 / 2020-12-15
+
+This is an optional Lotus release that introduces many performance improvements, bugfixes, and UX improvements.
+
+## Changes
+
+- When waiting for deal commit messages, ignore unsuccessful messages (https://github.com/filecoin-project/lotus/pull/5189)
+- Bigger copy buffer size for stores (https://github.com/filecoin-project/lotus/pull/5177)
+- Print MinPieceSize when querying ask (https://github.com/filecoin-project/lotus/pull/5178)
+- Optimize miner info & sectors list loading (https://github.com/filecoin-project/lotus/pull/5176)
+- Allow miners to filter (un)verified deals (https://github.com/filecoin-project/lotus/pull/5094)
+- Fix curSealing out of MaxSealingSectors limit (https://github.com/filecoin-project/lotus/pull/5166)
+- Add mpool pending from / to filter (https://github.com/filecoin-project/lotus/pull/5169)
+- Add metrics for delayed blocks (https://github.com/filecoin-project/lotus/pull/5171)
+- Fix PushUntrusted publishing -- the message is local (https://github.com/filecoin-project/lotus/pull/5173)
+- Avoid potential hang in events API when starting event listener (https://github.com/filecoin-project/lotus/pull/5159)
+- Show data transfer ID in list-deals (https://github.com/filecoin-project/lotus/pull/5150)
+- Fix events API mutex locking (https://github.com/filecoin-project/lotus/pull/5160)
+- Message pool refactors (https://github.com/filecoin-project/lotus/pull/5162)
+- Fix lotus-shed cid output (https://github.com/filecoin-project/lotus/pull/5072)
+- Use FundManager to withdraw funds, add MarketWithdraw API (https://github.com/filecoin-project/lotus/pull/5112)
+- Add keygen outfile (https://github.com/filecoin-project/lotus/pull/5118)
+- Update sr2 stat aggregation (https://github.com/filecoin-project/lotus/pull/5114)
+- Fix miner control address lookup (https://github.com/filecoin-project/lotus/pull/5119)
+- Fix send with declared nonce 0 (https://github.com/filecoin-project/lotus/pull/5111)
+- Introduce memory watchdog; LOTUS_MAX_HEAP (https://github.com/filecoin-project/lotus/pull/5101)
+- Miner control address config for (pre)commits (https://github.com/filecoin-project/lotus/pull/5103)
+- Delete repeated call func (https://github.com/filecoin-project/lotus/pull/5099)
+- lotus-shed ledger show command (https://github.com/filecoin-project/lotus/pull/5098)
+- Log a message when there aren't enough peers for sync (https://github.com/filecoin-project/lotus/pull/5105)
+- Miner code cleanup (https://github.com/filecoin-project/lotus/pull/5107)
+
 # 1.2.2 / 2020-12-03
 
 This is an optional Lotus release that introduces various improvements to the mining logic and deal-making workflow, as well as several new UX features.
@@ -88,7 +133,7 @@ This is a very small release of Lotus that fixes an issue users are experiencing
 
 # 1.2.0 / 2020-11-18
 
-This is a mandatory release of Lotus that introduces the second post-liftoff upgrade to the Filecoin network. The network upgrade occurs at height 265200, before which time all nodes must have update to this release (or later). This release also bumps the required version of Go to 1.15.
+This is a mandatory release of Lotus that introduces the second post-liftoff upgrade to the Filecoin network. The network upgrade occurs at height 265200, before which time all nodes must have updated to this release (or later). This release also bumps the required version of Go to 1.15.
 
 The changes that break consensus are:
 
