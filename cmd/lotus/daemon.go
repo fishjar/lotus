@@ -148,6 +148,8 @@ var DaemonCmd = &cli.Command{
 	Action: func(cctx *cli.Context) error {
 		isLite := cctx.Bool("lite")
 
+		// ADDBYGABE
+		// 启用收集CUP和内存指标数据
 		err := runmetrics.Enable(runmetrics.RunMetricOptions{
 			EnableCPU:    true,
 			EnableMemory: true,
@@ -156,12 +158,16 @@ var DaemonCmd = &cli.Command{
 			return xerrors.Errorf("enabling runtime metrics: %w", err)
 		}
 
+		// ADDBYGABE
+		// 设置最大文件描述符？
 		if cctx.Bool("manage-fdlimit") {
 			if _, _, err := ulimit.ManageFdLimit(); err != nil {
 				log.Errorf("setting file descriptor limit: %s", err)
 			}
 		}
 
+		// ADDBYGABE
+		// 启用当前进程的CPU性能分析
 		if prof := cctx.String("pprof"); prof != "" {
 			profile, err := os.Create(prof)
 			if err != nil {
@@ -174,6 +180,8 @@ var DaemonCmd = &cli.Command{
 			defer pprof.StopCPUProfile()
 		}
 
+		// ADDBYGABE
+		// 指定node的类型？
 		var isBootstrapper dtypes.Bootstrapper
 		switch profile := cctx.String("profile"); profile {
 		case "bootstrapper":
@@ -184,6 +192,8 @@ var DaemonCmd = &cli.Command{
 			return fmt.Errorf("unrecognized profile type: %q", profile)
 		}
 
+		// ADDBYGABE
+		// 新建ctx实例，入参包含：空ctx，版本号，提交的commit
 		ctx, _ := tag.New(context.Background(), tag.Insert(metrics.Version, build.BuildVersion), tag.Insert(metrics.Commit, build.CurrentCommit))
 		{
 			dir, err := homedir.Expand(cctx.String("repo"))
@@ -194,15 +204,21 @@ var DaemonCmd = &cli.Command{
 			}
 		}
 
+		// ADDBYGABE
+		// r包含lotus主目录地址，和配置文件地址
 		r, err := repo.NewFS(cctx.String("repo"))
 		if err != nil {
 			return xerrors.Errorf("opening fs repo: %w", err)
 		}
 
+		// ADDBYGABE
+		// 如果设置了配置文件参数，覆盖r中的配置文件地址
 		if cctx.String("config") != "" {
 			r.SetConfigPath(cctx.String("config"))
 		}
 
+		// ADDBYGABE
+		// 创建主目录及配置文件，并且写入配置内容到配置文件
 		if err := r.Init(repo.FullNode); err != nil && err != repo.ErrRepoExists {
 			return xerrors.Errorf("repo init error: %w", err)
 		}
