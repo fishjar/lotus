@@ -218,17 +218,23 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// ADDBYGABE
-		// 创建主目录及配置文件，并且写入配置内容到配置文件
+		// 创建主目录及配置文件，并且写入(默认)配置内容到配置文件
 		if err := r.Init(repo.FullNode); err != nil && err != repo.ErrRepoExists {
 			return xerrors.Errorf("repo init error: %w", err)
 		}
 
+		// ADDBYGABE
+		// 非精简模式，需要下载证明参数文件
+		// 默认保存位置"/var/tmp/filecoin-proof-parameters"
 		if !isLite {
 			if err := paramfetch.GetParams(lcli.ReqContext(cctx), build.ParametersJSON(), 0); err != nil {
 				return xerrors.Errorf("fetching proof parameters: %w", err)
 			}
 		}
 
+		// ADDBYGABE
+		// 用于第一个节点的创世文件
+		// 没有指定参数，则利用rice.FindBox在当前目录生成默认的“devnet.car”文件
 		var genBytes []byte
 		if cctx.String("genesis") != "" {
 			genBytes, err = ioutil.ReadFile(cctx.String("genesis"))
@@ -239,6 +245,10 @@ var DaemonCmd = &cli.Command{
 			genBytes = build.MaybeGenesis()
 		}
 
+		// ADDBYGABE
+		// 导入链文件或快照，可以是文件或url
+		// 这两个参数不能同时给定
+		// 有halt-after-import参数，导入结束后，命令函数也结束
 		chainfile := cctx.String("import-chain")
 		snapshot := cctx.String("import-snapshot")
 		if chainfile != "" || snapshot != "" {
@@ -260,10 +270,16 @@ var DaemonCmd = &cli.Command{
 			}
 		}
 
+		// ADDBYGABE
+		// genesis是一个闭包函数
 		genesis := node.Options()
 		if len(genBytes) > 0 {
 			genesis = node.Override(new(modules.Genesis), modules.LoadGenesis(genBytes))
 		}
+		// ADDBYGABE
+		// 创世文件参数：makeGenFlag = "lotus-make-genesis"
+		// 创世模板文件参数：preTemplateFlag = "genesis-template"
+		// testing.MakeGenesis 为创建创世区块函数
 		if cctx.String(makeGenFlag) != "" {
 			if cctx.String(preTemplateFlag) == "" {
 				return xerrors.Errorf("must also pass file with genesis template to `--%s`", preTemplateFlag)
@@ -271,10 +287,14 @@ var DaemonCmd = &cli.Command{
 			genesis = node.Override(new(modules.Genesis), testing.MakeGenesis(cctx.String(makeGenFlag), cctx.String(preTemplateFlag)))
 		}
 
+		// ADDBYGABE
+		// 关闭信号
 		shutdownChan := make(chan struct{})
 
 		// If the daemon is started in "lite mode", provide a  GatewayAPI
 		// for RPC calls
+		// ADDBYGABE
+		// 如果精简模式，提供一个网关API服务给RPC调用
 		liteModeDeps := node.Options()
 		if isLite {
 			gapi, closer, err := lcli.GetGatewayAPI(cctx)
@@ -289,11 +309,19 @@ var DaemonCmd = &cli.Command{
 		// some libraries like ipfs/go-ds-measure and ipfs/go-ipfs-blockstore
 		// use ipfs/go-metrics-interface. This injects a Prometheus exporter
 		// for those. Metrics are exported to the default registry.
+		// ADDBYGABE
+		// ipfs/go-ds-measure and ipfs/go-ipfs-blockstore 使用了 ipfs/go-metrics-interface
+		// ipfs/go-metrics-interface 给它们注入了 Prometheus exporter
+		// 指标导出到默认注册表？
 		if err := metricsprom.Inject(); err != nil {
 			log.Warnf("unable to inject prometheus ipfs/go-metrics exporter; some metrics will be unavailable; err: %s", err)
 		}
 
+		// ADDBYGABE
+		// FullNode 是一个底层接口，需要实现非常多的方法
 		var api api.FullNode
+		// ADDBYGABE
+		// 创建或开始一个新的filecoin node
 		stop, err := node.New(ctx,
 			node.FullAPI(&api, node.Lite(isLite)),
 
@@ -305,6 +333,9 @@ var DaemonCmd = &cli.Command{
 			genesis,
 			liteModeDeps,
 
+			// ADDBYGABE
+			// 这里的api其实就是端口号
+			// 如果配置文件里面没有设置，才会从命令行参数中获取
 			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("api") },
 				node.Override(node.SetApiEndpointKey, func(lr repo.LockedRepo) error {
 					apima, err := multiaddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" +
