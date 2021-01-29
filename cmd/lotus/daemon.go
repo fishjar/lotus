@@ -205,7 +205,7 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// ADDBYGABE
-		// r包含lotus主目录地址，和配置文件地址
+		// r结构体实例包含lotus主目录地址，和配置文件地址
 		r, err := repo.NewFS(cctx.String("repo"))
 		if err != nil {
 			return xerrors.Errorf("opening fs repo: %w", err)
@@ -354,6 +354,9 @@ var DaemonCmd = &cli.Command{
 			return xerrors.Errorf("initializing node: %w", err)
 		}
 
+		// ADDBYGABE
+		// 默认钱包的key
+		// import-key 是一个相对于homedir的文件路径名
 		if cctx.String("import-key") != "" {
 			if err := importKey(ctx, api, cctx.String("import-key")); err != nil {
 				log.Errorf("importing key failed: %+v", err)
@@ -370,12 +373,16 @@ var DaemonCmd = &cli.Command{
 		// Set the metric to one so it is published to the exporter
 		stats.Record(ctx, metrics.LotusInfo.M(1))
 
+		// ADDBYGABE
+		// endpoint 是一个包含[]byte的结构体，实现了许多工具方法
 		endpoint, err := r.APIEndpoint()
 		if err != nil {
 			return xerrors.Errorf("getting api endpoint: %w", err)
 		}
 
 		// TODO: properly parse api endpoint (or make it a URL)
+		// ADDBYGABE
+		// 启动RPC服务
 		return serveRPC(api, stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")))
 	},
 	Subcommands: []*cli.Command{

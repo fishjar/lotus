@@ -65,6 +65,8 @@ func main() {
 			},
 		},
 
+		// ADDBYGABE
+		// 除了这里定义的DaemonCmd、backupCmd两个子命令，还包含了cli目录下的众多子命令
 		Commands: append(local, lcli.Commands...),
 	}
 	app.Setup()
