@@ -146,6 +146,8 @@ var DaemonCmd = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
+		log.Info("--------------start----------------")
+
 		isLite := cctx.Bool("lite")
 
 		// ADDBYGABE

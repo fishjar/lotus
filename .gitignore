@@ -41,3 +41,6 @@ bin/ipget
 bin/tmp/*
 .idea
 scratchpad
+
+env.sh
+data
